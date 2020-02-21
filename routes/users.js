@@ -7,62 +7,45 @@ module.exports = function(app){
 	router.post('/login', function(req, res){
 		const client_ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-		if(typeof req.query.user_token === 'undefined' && !req.query.user_token
-			|| typeof req.query.provider === 'undefined' && !req.query.provider){
-			res.json({ res_code: 2 });
-			return;
-		}
+		if(!check_query_vaild([req.query.user_token, req.query.provider]))
+			return res.json({ res_code: 2 });
 
-		check_user_info(req.query.user_token, req.query.provider,
-			function (res_code, id, nickname){
-				if (res_code != 0)
-					res.json({ res_code: res_code });
-				else 
-					create_user(id, req.query.provider, nickname, client_ip,
-						function (res_code){
-							if(res_code != 0)
-								res.json({ res_code: res_code });
-							else 
-								create_user_session(id, req.query.provider, client_ip,
-									function(res_code, session_id){
-										if(res_code != 0)
-											res.json({ res_code: res_code});
-										else
-											res.json({ res_code: res_code, session_id : session_id });
-									});
-						});
+		reqeust_user_login(req.query.user_token, req.query.provider, client_ip,
+			function(res_code, session_id){
+				if(res_code != 0)
+					res.json({ res_code: res_code});
+				else
+					res.json({ res_code: res_code, session_id : session_id });
 			});
 	});
 
 	router.get('/already-joined', function(req, res){
-		if(typeof req.query.user_token === 'undefined' && !req.query.user_token
-			|| typeof req.query.provider === 'undefined' && !req.query.provider){
-			res.json({ res_code: 2 });
-			return;
-		}
+		if(!check_query_vaild([req.query.user_token, req.query.provider]))
+			return res.json({ res_code: 2 });
 
-		check_user_info(req.query.user_token, req.query.provider,
-			function (res_code, id, nickname){
-				if (res_code != 0)
-					res.json({ res_code: res_code });
-				else 
-					check_user_already_joined(id, req.query.provider,
-						function(res_code, already_joined) {
-							if(res_code != 0)
-								res.json({ res_code: res_code });
-							else{
-								res.json({ res_code: res_code, already_joined : (already_joined ? true : false) });
-							}
-						});
+		check_already_joined(req.query.user_token, req.query.provider,
+			function(res_code, session_id){
+				if(res_code != 0)
+					res.json({ res_code: res_code});
+				else
+					res.json({ res_code: res_code, session_id : session_id });
 			});
 	});
 
-	function user_login(user_token, provider, client_ip, callback){
-		check_user_info(user_token, provider,
+	function check_query_vaild(query_list){
+		query_list.forEach(query => {
+			if(typeof query === 'undefined' && !query)
+				return 0;
+		});
+		return 1;
+	}
+
+	function reqeust_user_login(user_token, provider, client_ip, callback){
+		get_user_info(user_token, provider,
 			function (res_code, id, nickname){
 				if (res_code != 0)
 					return callback(res_code);
-				else 
+				else
 					create_user(id, provider, nickname, client_ip,
 						function (res_code){
 							if(res_code != 0)
@@ -79,7 +62,24 @@ module.exports = function(app){
 			});
 	}
 
-	function check_user_info(user_token, provider, callback){
+	function check_already_joined(user_token, provider, callback){
+		get_user_info(user_token, provider,
+			function (res_code, id, nickname){
+				if (res_code != 0)
+					return callback(res_code);
+				else 
+					get_user_already_joined(id, provider,
+						function(res_code, already_joined) {
+							if(res_code != 0)
+								return callback(res_code);
+							else{
+								return callback(res_code, already_joined ? true : false);
+							}
+						});
+			});
+	}
+
+	function get_user_info(user_token, provider, callback){
 		if (provider == 'KAKAO'){
 			request.get('https://kapi.kakao.com/v2/user/me',{
 				headers: {
@@ -87,7 +87,6 @@ module.exports = function(app){
 				},
 				qs: { 'property_keys': '["id", "properties.nickname"]'}
 			},function (er, rs, bd) {
-				var res_code = 0;
 				if (er){
 					console.log(er);
 					return callback(3);
@@ -104,7 +103,6 @@ module.exports = function(app){
 		}else if (provider =='FACEBOOK'){
 			request.get('https://graph.facebook.com/v5.0/me?fields=id%2Cname&access_token='+ user_token,
 			function (er, rs, bd) {
-				var res_code = 0;
 				if (er){
 					console.log(er);
 					return callback(3);
@@ -122,7 +120,7 @@ module.exports = function(app){
 			return callback(2);
 	}
 
-	function check_user_already_joined(provider_id, provider, callback) {
+	function get_user_already_joined(provider_id, provider, callback) {
 		sql.select("SELECT COUNT(*) FROM T_USER_LIST WHERE USER_PROVIDER_ID='" + provider_id + "' AND PROVIDER='" + provider + "';",
 			function(err, data){
 				if (err){
@@ -135,7 +133,7 @@ module.exports = function(app){
 	}
 
 	function create_user(provider_id, provider, nickname, client_ip, callback) {
-		check_user_already_joined(provider_id, provider,
+		get_user_already_joined(provider_id, provider,
 			function(res_code, already_joined) {
 				if(res_code != 0)
 					return callback(res_code);
@@ -149,7 +147,7 @@ module.exports = function(app){
 						else
 							return callback(0);
 					});
-				}else {
+				} else {
 					return callback(0);
 				}
 			})
