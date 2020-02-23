@@ -6,20 +6,8 @@ module.exports = function () {
     host: config.host,
     user: config.user,
     password: config.password,
-    database: config.database
-  });
-
- 
-  pool.on('acquire', function (connection) {
-    console.log(`Connection ${connection.threadId} acquired`);
-  });
-
-  pool.on('enqueue', function () {
-    console.log('Waiting for available connection slot');
-  });
-
-  pool.on('release', function (connection) {
-    console.log(`Connection ${connection.threadId} released`);
+    database: config.database,
+    connectionLimit: 150
   });
 
   return pool;
