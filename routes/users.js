@@ -23,10 +23,10 @@ module.exports = function(app){
 			return res.json({ res_code: 2 });
 
 		check_already_joined(req.query.user_token, req.query.provider,
-			function(res_code, session_id){
+			function(res_code, already_joined){
 				if(res_code != 0)
 					return res.json({ res_code: res_code});
-				res.json({ res_code: res_code, session_id : session_id });
+				res.json({ res_code: res_code, already_joined : already_joined });
 			});
 	});
 
