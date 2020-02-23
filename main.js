@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const logger = require('morgan');
 
+app.disable('x-powered-by');
+
 app.use(express.json());
 app.use(logger('short'));
 
