@@ -2,7 +2,7 @@ module.exports = function(app){
 	const express = require('express');
 	const router = express.Router();
 	const request = require('request');
-	const sql = require('../db_sql')();
+	const pool = require('../db_connect');
 
 	router.get('/list', function(req, res){
 		var client_ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -49,7 +49,7 @@ module.exports = function(app){
 		}
 		query += ';';
 
-		sql.select(query, qlist,
+		pool.query(query, qlist,
 			function(err, data){
 				if (err){
 					console.log(err);

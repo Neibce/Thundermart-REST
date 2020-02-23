@@ -2,7 +2,7 @@ module.exports = function(app){
 	const express = require('express');
 	const router = express.Router();
 	const request = require('request');
-	const sql = require('../db_sql')();
+	const pool = require('../db_connect');
 
 	router.post('/login', function(req, res){
 		const client_ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -132,7 +132,7 @@ module.exports = function(app){
 	}
 
 	function get_user_already_joined(provider_id, provider, callback) {
-		sql.select("SELECT COUNT(*) FROM T_USER_LIST WHERE USER_PROVIDER_ID='" + provider_id + "' AND PROVIDER='" + provider + "';",
+		pool.query("SELECT COUNT(*) FROM T_USER_LIST WHERE USER_PROVIDER_ID='" + provider_id + "' AND PROVIDER='" + provider + "';",
 			function(err, data){
 				if (err){
 					console.log(err);
@@ -149,7 +149,7 @@ module.exports = function(app){
 				if(res_code != 0)
 					return callback(res_code);
 				if(!already_joined){
-					sql.select("INSERT INTO T_USER_LIST(USER_ID, USER_CREATE_IP, USER_NICKNAME, USER_PROVIDER_ID, PROVIDER) VALUES (UNHEX(REPLACE(UUID(),'-','')), '" + client_ip + "', '" + nickname + "', " + provider_id + ", '" + provider + "');",
+					pool.query("INSERT INTO T_USER_LIST(USER_ID, USER_CREATE_IP, USER_NICKNAME, USER_PROVIDER_ID, PROVIDER) VALUES (UNHEX(REPLACE(UUID(),'-','')), '" + client_ip + "', '" + nickname + "', " + provider_id + ", '" + provider + "');",
 					function(err, data){
 						if (err){
 							console.log(err);
@@ -165,21 +165,21 @@ module.exports = function(app){
 	}
 
 	function create_user_session(provider_id, provider, client_ip, callback){
-		sql.select("DELETE FROM T_USER_SESSIONS WHERE USER_ID IN(SELECT USER_ID FROM T_USER_LIST WHERE USER_PROVIDER_ID=" + provider_id + " AND PROVIDER='" + provider + "');",
+		pool.query("DELETE FROM T_USER_SESSIONS WHERE USER_ID IN(SELECT USER_ID FROM T_USER_LIST WHERE USER_PROVIDER_ID=" + provider_id + " AND PROVIDER='" + provider + "');",
 			function(err, data){
 				if (err){
 					console.log(err);
 					return callback(3);
 				}
 				else
-					sql.select("INSERT INTO T_USER_SESSIONS (SESSION_ID, TOKEN_TYPE, USER_ID, CREATED_IP) SELECT UNHEX(REPLACE(UUID(),'-','')), 0, USER_ID, '" + client_ip + "' FROM T_USER_LIST WHERE USER_PROVIDER_ID = " + provider_id + " AND PROVIDER='" + provider + "';",
+					pool.query("INSERT INTO T_USER_SESSIONS (SESSION_ID, TOKEN_TYPE, USER_ID, CREATED_IP) SELECT UNHEX(REPLACE(UUID(),'-','')), 0, USER_ID, '" + client_ip + "' FROM T_USER_LIST WHERE USER_PROVIDER_ID = " + provider_id + " AND PROVIDER='" + provider + "';",
 						function(err, data){
 							if (err){
 								console.log(err);
 								return callback(3);
 							}
 							else
-								sql.select("SELECT HEX(SESSION_ID) FROM T_USER_SESSIONS WHERE USER_ID IN(SELECT USER_ID FROM T_USER_LIST WHERE USER_PROVIDER_ID=" + provider_id + " AND PROVIDER='" + provider + "');",
+								pool.query("SELECT HEX(SESSION_ID) FROM T_USER_SESSIONS WHERE USER_ID IN(SELECT USER_ID FROM T_USER_LIST WHERE USER_PROVIDER_ID=" + provider_id + " AND PROVIDER='" + provider + "');",
 									function(err, data){
 										if (err){
 											console.log(err);
