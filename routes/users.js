@@ -95,7 +95,7 @@ module.exports = function(app){
 				if(typeof parsed_bd.id === 'undefined' && !parsed_bd.id
 					|| typeof parsed_bd.properties.nickname === 'undefined' && !parsed_bd.properties.nickname){
 						if(parsed_bd.code == -10)
-							return callback(40);
+							return callback(4);
 						else if (parsed_bd.code == -401)
 							return callback(101);
 						else
@@ -116,8 +116,14 @@ module.exports = function(app){
 				var parsed_bd = JSON.parse(bd);
 
 				if(typeof parsed_bd.id === 'undefined' && !parsed_bd.id
-					|| typeof parsed_bd.name === 'undefined' && !parsed_bd.name)
-						return callback(101);
+					|| typeof parsed_bd.name === 'undefined' && !parsed_bd.name){
+						if(parsed_bd.error.code == 4)
+							return callback(4);
+						else if (parsed_bd.error.code == 190)
+							return callback(101);
+						else
+							return callback(3);
+					}
 
 				return callback(0, parsed_bd.id, parsed_bd.name);
 			});
