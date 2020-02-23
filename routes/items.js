@@ -7,7 +7,7 @@ module.exports = function(app){
 	router.get('/list', function(req, res){
 		//const client_ip = tools.get_client_ip();
 
-		if(tools.is_query_vaild([req.query.shop], [req.query.category, req.query.keyword]))
+		if(!tools.is_query_vaild([req.query.shop], [req.query.category, req.query.keyword]))
 			return res.json({ res_code: 2 });
 
 		items.get_list(req.query.shop, req.query.category, req.query.keyword,
