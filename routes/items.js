@@ -5,7 +5,7 @@ module.exports = function(app){
 	const tools = require('../lib/tools');
 
 	router.get('/list', function(req, res){
-		//const clientIP = tools.get_client_ip();
+		//const clientIp = tools.get_client_ip();
 
 		if(!tools.isQueryVaild([req.query.shop], [req.query.category, req.query.keyword]))
 			return res.json({ code: 2 });
@@ -13,9 +13,9 @@ module.exports = function(app){
 		items.getList(req.query.shop, req.query.category, req.query.keyword,
 			function(resCode, list){
 				if(resCode != 0)
-					res.json({ code: resCode });
+					res.json({ res_code: resCode });
 				else
-					res.json({ code: resCode, itemList: list });
+					res.json({ res_code: resCode, item_list: list });
 			});
 	});
 
