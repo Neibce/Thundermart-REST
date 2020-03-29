@@ -4,9 +4,4 @@ node_js:
 addons:
   mariadb: '10.4'
 before_install:
-  - npm install express
-  - npm install morgan
-  - npm install request
-  - npm install mysql
-  - npm install iamport
   - sudo mysql -e 'CREATE DATABASE IF NOT EXISTS thunder_mart;'
