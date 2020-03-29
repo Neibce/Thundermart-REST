@@ -7,15 +7,18 @@
     "lib": "lib"
   },
   "dependencies": {
+    "chai": "^4.2.0",
     "express": "^4.17.1",
     "iamport": "^0.3.4",
+    "mocha": "^7.1.1",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "request": "^2.88.2"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "node main.js"
+    "start": "node main.js",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
