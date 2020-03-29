@@ -17,12 +17,8 @@
   },
   "devDependencies": {},
   "scripts": {
-<<<<<<< HEAD
     "start": "node main.js",
     "test": "mocha"
-=======
-    "test": "node main.js"
->>>>>>> c81a59755373bd2b080f160b0dc590a7ce5cfdc4
   },
   "repository": {
     "type": "git",
