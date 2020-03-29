@@ -4,3 +4,4 @@ before_install:
   - npm install morgan
   - npm install request
   - npm install mysql
+  - npm install iamport
