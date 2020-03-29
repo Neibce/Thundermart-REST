@@ -7,4 +7,4 @@ before_install:
   - npm install request
   - npm install mysql
   - npm install iamport
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS thunder_mart;'
+  - sudo mysql -e 'CREATE DATABASE IF NOT EXISTS thunder_mart;'
