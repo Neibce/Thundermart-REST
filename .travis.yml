@@ -9,7 +9,4 @@ before_install:
   - npm install request
   - npm install mysql
   - npm install iamport
-  - sudo ln -s /usr/local/bin/node /usr/bin/node
-  - sudo ln -s /usr/local/lib/node /usr/lib/node
-  - sudo ln -s /usr/local/bin/npm /usr/bin/npm
   - sudo mysql -e 'CREATE DATABASE IF NOT EXISTS thunder_mart;'
