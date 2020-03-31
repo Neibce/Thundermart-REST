@@ -28,7 +28,7 @@ module.exports = function(app){
 			});
 	});
 
-	router.get('/already-joined', function(req, res){
+	router.get('/check-exist', function(req, res){
 		if(!tools.isQueryVaild([req.query.user_token, req.query.provider]))
 			return res.json({ code: 2 });
 
@@ -36,11 +36,11 @@ module.exports = function(app){
 			function (resCode, id, nickname){
 				if (resCode != 0)
 					return res.json({ code: resCode });
-				users.checkAlreadyJoined(id, req.query.provider,
+				users.checkExist(id, req.query.provider,
 					function(resCode, alreadyJoined) {
 						if(resCode != 0)
 							return res.json({ res_code: resCode });
-						res.json({ res_code: resCode, already_joined : alreadyJoined });
+						res.json({ res_code: resCode, user_exist : alreadyJoined });
 					});
 				});
 	});
