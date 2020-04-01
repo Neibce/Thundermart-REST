@@ -17,10 +17,10 @@ const ordersRouter = require('./routes/orders')(app);
 app.use('/orders', ordersRouter);
 
 app.get('*', function(req, res){
-  res.status(404).json({ result: 404 });
+    res.status(404).json({ result: 404 });
 });
 
 
-const server = app.listen(80, function(){
-	console.log("Express server has started on port 80");
+app.listen(80, function(){
+    console.log('Express server has started on port 80');
 });
